@@ -1,18 +1,12 @@
 name: Build only for myron
 
-# Every push is linted and tested, and the recovery is built for every
-# device in devices/, each image zipped. A tag starting with v publishes
-# those zips as a release, each shown as the phone it is for. Run by hand,
-# it can build for one device alone.
+# Run by hand; it builds the recovery for myron alone.
 on:
-  push:
-    branches: ["**"]
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       device:
-        description: The codename of the one device to build for; every device when empty
-        required: false
+        description: The codename of the device to build for
+        required: true
         default: "myron"
 
 permissions:
@@ -20,7 +14,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
@@ -67,32 +61,10 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  devices:
-    name: List the devices
-    runs-on: ubuntu-24.04
-    outputs:
-      devices: ${{ steps.list.outputs.devices }}
-    steps:
-      - uses: actions/checkout@v7
-      - id: list
-        env:
-          DEVICE: ${{ inputs.device }}
-        run: |
-          if [ -n "$DEVICE" ]; then
-            test -f "devices/$DEVICE.toml"
-            echo "devices=$(jq -nc --arg device "$DEVICE" '[$device]')" >> "$GITHUB_OUTPUT"
-          else
-            echo "devices=$(basename -s .toml devices/*.toml | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
-          fi
-
   recovery:
-    name: Recovery for ${{ matrix.device }}
-    needs: [tools, devices]
+    name: Recovery for ${{ inputs.device }}
+    needs: [tools]
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        device: ${{ fromJSON(needs.devices.outputs.devices) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -103,7 +75,7 @@ jobs:
         run: chmod +x tools/skyward tools/skyward-pack
       - name: Read the stock build the recovery is made on
         id: stock
-        run: tools/skyward-pack stock --config "devices/${{ matrix.device }}.toml" >> "$GITHUB_OUTPUT"
+        run: tools/skyward-pack stock --config "devices/${{ inputs.device }}.toml" >> "$GITHUB_OUTPUT"
       - name: Restore the stock recovery
         id: cache
         uses: actions/cache@v6
@@ -114,7 +86,7 @@ jobs:
       # which is several gigabytes in all.
       - name: Take the recovery partition out of the stock package
         if: steps.cache.outputs.cache-hit != 'true'
-        run: tools/skyward-pack stock --config "devices/${{ matrix.device }}.toml" --out stock/recovery.img
+        run: tools/skyward-pack stock --config "devices/${{ inputs.device }}.toml" --out stock/recovery.img
       - name: Check the stock recovery
         env:
           RECOVERY: ${{ steps.stock.outputs.recovery }}
@@ -122,10 +94,10 @@ jobs:
       - name: Pack the recovery
         id: pack
         env:
-          DEVICE: ${{ matrix.device }}
+          DEVICE: ${{ inputs.device }}
           STOCK: ${{ steps.stock.outputs.version }}
         run: |
-          if [ "$GITHUB_REF_TYPE" = tag ]; then version="$GITHUB_REF_NAME"; else version="${GITHUB_SHA::7}"; fi
+          version="${GITHUB_SHA::7}"
           name="skyward-$version-$DEVICE-$STOCK"
           mkdir out
           tools/skyward-pack recovery --stock stock/recovery.img --binary tools/skyward --system-init tools/system-init \
@@ -146,41 +118,3 @@ jobs:
           archive: false
           if-no-files-found: error
           retention-days: 7
-
-  release:
-    name: Publish the release
-    if: github.ref_type == 'tag'
-    needs: [check, recovery]
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      # The devices' configurations say which phone each zip is for.
-      - uses: actions/checkout@v7
-      # Each artifact is a zip, which the download keeps whole under its
-      # name, as it is handed out.
-      - uses: actions/download-artifact@v8
-        with:
-          pattern: skyward-*
-          path: images
-          merge-multiple: true
-          skip-decompress: true
-      - name: Sum the zips
-        working-directory: images
-        run: sha256sum -- *.zip > SHA256SUMS
-      # Each zip shows on the release as the phone it is for, its model and
-      # then its codename, which is how people look for theirs; a device
-      # whose zip is missing stops the release.
-      - name: Publish the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          zips=()
-          for config in devices/*.toml; do
-            device=$(basename "$config" .toml)
-            model=$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["device"]["model"])' "$config")
-            zip=$(ls images/skyward-"$GITHUB_REF_NAME"-"$device"-*.zip)
-            zips+=("$zip#$model ($device)")
-          done
-          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes "${zips[@]}" images/SHA256SUMS
