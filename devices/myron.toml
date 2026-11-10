@@ -130,24 +130,25 @@ groups = ["system"]
 # these two are taken from them. The other builds keep their weaver in a
 # Thales secure element, which its service reaches only through Android's
 # own OMAPI service, and a recovery runs none of Android's framework.
-# [[service]]
-# path = "/odm/bin/hw/android.hardware.secure_element-service-goodix"
-# libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
-# ready_service = "android.hardware.secure_element.ISecureElement/eSE2"
-# registers = ["vendor.goodix.hardware.secure_element_aidl.IGdxEse/default"]
-# description = "/odm/etc/secure_element-service-goodixsp.xml"
-# when = { property = "ro.special_edition", value = "true" }
-# user = "system"
-# groups = ["system"]
+[[service]]
+path = "/vendor/bin/hw/android.hardware.secure_element-service.qti"
+libraries = ["/system/lib64", "/vendor/lib64", "/vendor/lib64/hw", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
+ready_service = "android.hardware.secure_element.ISecureElement/eSE2"
+registers = [
+    "android.hardware.secure_element.ISecureElement/SIM1",
+    "android.hardware.secure_element.ISecureElement/SIM2",
+]
+registers = ["android.se.omapi.ISecureElementService/default"]
+description = "/vendor/etc/vintf/secure_element-service.xml"
+user = "system"
+groups = ["system"]
 
-# [[service]]
-# path = "/odm/bin/hw/android.hardware.weaver-service"
-# libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
-# ready_service = "android.hardware.weaver.IWeaver/default"
-# when = { property = "ro.special_edition", value = "true" }
-# user = "system"
-# groups = ["system", "drmrpc"]
-# capabilities = ["WAKE_ALARM"]
+[[service]]
+path = "/odm/bin/hw/android.hardware.hardware.weaver-service.nxp-qti"
+libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
+ready_service = "android.hardware.weaver.IWeaver/default"
+user = "system"
+groups = ["system", "drmrpc"]
 
 # The boot control, which says which slot the bootloader starts next and
 # switches it, writing where the bootloader reads it. It comes last: the
