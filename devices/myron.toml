@@ -131,30 +131,23 @@ groups = ["system"]
 # Thales secure element, which its service reaches only through Android's
 # own OMAPI service, and a recovery runs none of Android's framework.
 [[service]]
-path = "/vendor/bin/hw/android.hardware.secure_element-service.qti"
-libraries = ["/system/lib64", "/vendor/lib64", "/vendor/lib64/hw", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
+path = "/odm/bin/hw/android.hardware.secure_element-service-goodix"
+libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
 ready_service = "android.hardware.secure_element.ISecureElement/eSE2"
-registers = [
-    "android.hardware.secure_element.ISecureElement/SIM1",
-    "android.hardware.secure_element.ISecureElement/SIM2",
-]
-description = "/vendor/etc/vintf/secure_element-service.xml"
+registers = ["vendor.goodix.hardware.secure_element_aidl.IGdxEse/default"]
+description = "/odm/etc/secure_element-service-goodixsp.xml"
+when = { property = "ro.special_edition", value = "true" }
 user = "system"
 groups = ["system"]
-
-[[service]]
-path = "/system/bin/se_omapi"
-libraries = ["/system/lib64", "/vendor/lib64"]
-ready_service = "android.se.omapi.ISecureElementService/default"
-user = "root"
-groups = ["root", "system"]
 
 [[service]]
 path = "/odm/bin/hw/android.hardware.hardware.weaver-service.nxp-qti"
 libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
 ready_service = "android.hardware.weaver.IWeaver/default"
+when = { property = "ro.special_edition", value = "true" }
 user = "system"
 groups = ["system", "drmrpc"]
+capabilities = ["WAKE_ALARM"]
 
 # The boot control, which says which slot the bootloader starts next and
 # switches it, writing where the bootloader reads it. It comes last: the
@@ -193,12 +186,12 @@ probe = "http://connect.rom.miui.com/generate_204"
 [update]
 server = "https://update.miui.com/updates/miotaV3.php"
 
-# The stock build the recovery is made on: the Chinese system's OS4.0.5.0,
+# The stock build the recovery is made on: the Chinese system's OS4.0.4.0,
 # whose full update package on the phone maker's own download server holds
 # the recovery partition the recovery is built on top of.
 [stock]
-version = "OS4.0.5.0.XPMCNXM"
-package = "https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS4.0.5.0.XPMCNXM/myron-ota_full-OS4.0.5.0.XPMCNXM-user-17.0-e2d9be411c.zip"
+version = "OS4.0.4.0.XPACNXM"
+package = "https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS4.0.4.0.XPACNXM/nezha-ota_full-OS4.0.4.0.XPACNXM-user-17.0-4cf5faf3ac.zip"
 recovery = "faa425b10231a0cfe2d74ff34f344f032ee2d891ea5e9420bf4e67cd86d622a7"
 
 # qcom-hv-haptics. The waveforms the driver keeps play nothing in a
