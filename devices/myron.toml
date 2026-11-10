@@ -102,6 +102,8 @@ libraries = ["/system/lib64", "/vendor/lib64"]
 ready_service = "android.hardware.security.keymint.IKeyMintDevice/default"
 registers = [
     "android.hardware.security.keymint.IRemotelyProvisionedComponent/default",
+    "android.hardware.security.secureclock.ISecureClock/default",
+    "android.hardware.security.sharedsecret.ISharedSecret/default",
 ]
 user = "system"
 groups = ["system", "drmrpc"]
@@ -139,6 +141,13 @@ registers = [
 description = "/vendor/etc/vintf/secure_element-service.xml"
 user = "system"
 groups = ["system"]
+
+[[service]]
+path = "/system/bin/se_omapi"
+libraries = ["/system/lib64", "/vendor/lib64"]
+ready_service = "android.se.omapi.ISecureElementService/default"
+user = "root"
+groups = ["root", "system"]
 
 [[service]]
 path = "/odm/bin/hw/android.hardware.hardware.weaver-service.nxp-qti"
