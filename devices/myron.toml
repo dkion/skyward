@@ -102,8 +102,6 @@ libraries = ["/system/lib64", "/vendor/lib64"]
 ready_service = "android.hardware.security.keymint.IKeyMintDevice/default"
 registers = [
     "android.hardware.security.keymint.IRemotelyProvisionedComponent/default",
-    "android.hardware.security.secureclock.ISecureClock/default",
-    "android.hardware.security.sharedsecret.ISharedSecret/default",
 ]
 user = "system"
 groups = ["system", "drmrpc"]
