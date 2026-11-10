@@ -138,7 +138,6 @@ registers = [
     "android.hardware.secure_element.ISecureElement/SIM1",
     "android.hardware.secure_element.ISecureElement/SIM2",
 ]
-registers = ["android.se.omapi.ISecureElementService/default"]
 description = "/vendor/etc/vintf/secure_element-service.xml"
 user = "system"
 groups = ["system"]
