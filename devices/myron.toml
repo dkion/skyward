@@ -133,7 +133,7 @@ groups = ["system"]
 [[service]]
 path = "/odm/bin/hw/android.hardware.secure_element-service-goodix"
 libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
-ready_service = "android.hardware.secure_element.ISecureElement/eSE2"
+ready_service = "android.hardware.secure_element.ISecureElement/eSE1"
 registers = ["vendor.goodix.hardware.secure_element_aidl.IGdxEse/default"]
 description = "/odm/etc/secure_element-service-goodixsp.xml"
 when = { property = "ro.special_edition", value = "true" }
@@ -141,12 +141,19 @@ user = "system"
 groups = ["system"]
 
 [[service]]
-path = "/odm/bin/hw/android.hardware.hardware.weaver-service.nxp-qti"
+path = "/system/bin/se_omapi"
+libraries = ["/system/lib64", "/vendor/lib64"]
+ready_service = "android.se.omapi.ISecureElementService/default"
+user = "root"
+groups = ["root", "system"]
+
+[[service]]
+path = "/system/tee/weaver-service"
 libraries = ["/system/lib64", "/vendor/lib64", "/odm/lib64", "/mnt/system/system/lib64", "/mnt/system/system/lib64/bootstrap"]
 ready_service = "android.hardware.weaver.IWeaver/default"
-when = { property = "ro.special_edition", value = "true" }
-user = "system"
-groups = ["system", "drmrpc"]
+description = "/odm/etc/vintf/manifest/android.hardware.weaver-service.nxp.xml"
+user = "root"
+groups = ["root", "system"]
 capabilities = ["WAKE_ALARM"]
 
 # The boot control, which says which slot the bootloader starts next and
