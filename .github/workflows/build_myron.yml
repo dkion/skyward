@@ -1,4 +1,4 @@
-name: Build
+name: Build only for myron
 
 # Every push is linted and tested, and the recovery is built for every
 # device in devices/, each image zipped. A tag starting with v publishes
