@@ -186,12 +186,12 @@ probe = "http://connect.rom.miui.com/generate_204"
 [update]
 server = "https://update.miui.com/updates/miotaV3.php"
 
-# The stock build the recovery is made on: the Chinese system's OS4.0.4.0,
+# The stock build the recovery is made on: the Chinese system's OS4.0.5.0,
 # whose full update package on the phone maker's own download server holds
 # the recovery partition the recovery is built on top of.
 [stock]
-version = "OS4.0.4.0.XPACNXM"
-package = "https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS4.0.4.0.XPACNXM/nezha-ota_full-OS4.0.4.0.XPACNXM-user-17.0-4cf5faf3ac.zip"
+version = "OS4.0.5.0.XPMCNXM"
+package = "https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/OS4.0.5.0.XPMCNXM/myron-ota_full-OS4.0.5.0.XPMCNXM-user-17.0-e2d9be411c.zip"
 recovery = "faa425b10231a0cfe2d74ff34f344f032ee2d891ea5e9420bf4e67cd86d622a7"
 
 # qcom-hv-haptics. The waveforms the driver keeps play nothing in a
